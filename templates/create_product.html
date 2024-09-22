@@ -1,0 +1,50 @@
+{% block content %}
+<div class="container">
+    <h2>Create a New Product</h2>
+
+    <form method="POST" action="{% url 'product-create' %}">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" class="form-control" required></textarea>
+        </div>
+        <div class="form-group">
+            <label for="image">IMage:</label>
+            <textarea id="image" name="image" class="form-control" required></textarea>
+        </div>
+        <div class="form-group">
+            <label for="price1">Price 1:</label>
+            <input type="number" id="price1" name="price1" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+            <label for="price2">Price 2:</label>
+            <input type="number" id="price2" name="price2" class="form-control">
+        </div>
+
+        <div class="form-group">
+            <label for="material">Material:</label>
+            <input type="text" id="material" name="material" class="form-control" required>
+        </div>
+
+
+        <div class="form-group">
+            <label for="count">Count:</label>
+            <input type="number" id="count" name="count" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+            <label for="slug">Slug:</label>
+            <input type="number" id="slug" name="slug" class="form-control" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Create Product</button>
+    </form>
+
+</div>
+{% endblock %}

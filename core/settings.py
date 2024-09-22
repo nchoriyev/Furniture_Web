@@ -30,6 +30,8 @@ INSTALLED_APPS = [
     # applications
     'furnitures',
     'users',
+    'orders',
+    'delivery',
 
 ]
 

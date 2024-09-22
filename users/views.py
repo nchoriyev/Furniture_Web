@@ -28,8 +28,7 @@ class AuthPage(View):
             }
             response = requests.post(url, json=data)
 
-            # Check if status code is 401 and the detail message contains "Userr already exist"
-            if response.status_code == 200 and response.json().get('detail') == 'Userr already exist':
+            if response.status_code == 200 and response.json().get('detail') == 'User already exist':
                 error_message = "User already exists"
                 return render(request, 'auth/register.html', {'form': form, 'error_message': error_message})
 
@@ -58,11 +57,11 @@ class LoginPageView(View):
             }
             response = requests.post(url, json=data)
 
-            if response.status_code == 200 and response.json().get('detail') == 'Incorrect password or username':
+            if response.status_code  == 400 and response.json().get('detail') == 'Incorrect password or username':
                 error_message = "Username or Password is incorrect"
                 return render(request, 'auth/register.html', {'form': form, 'error_message': error_message})
 
-            if response.json()["status_code"] == 200:
+            if response.status_code == 200:
                 access_token = response.json()['access_token']
 
                 response = redirect('home')

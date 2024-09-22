@@ -1,8 +1,11 @@
+from itertools import product
+
 from django.shortcuts import render
 from django.views import View
 from django.http import HttpResponse, HttpResponseRedirect
 import requests
 from django.contrib import messages
+from django.conf import settings
 
 
 class IndexView(View):
@@ -31,7 +34,6 @@ class IndexView(View):
 
 class ShopView(View):
     def get(self, request):
-        # Check if the user is logged in by verifying the JWT token from cookies
         access_token = request.COOKIES.get('access_token')
 
         if not access_token:
@@ -50,8 +52,18 @@ class ShopView(View):
             response.delete_cookie('access_token')
             return response
 
+    def shop_view(request):
+        api_url = f"http://127.0.0.3:8003/products/"
+        headers = {
+            'Authorization': f"Bearer {request.COOKIES.get('access_token')}"
+        }
+
+        response = requests.get(api_url, headers=headers)
+        products = response.json() if response.status_code == 200 else []
+
+        return render(request, 'shop.html', {'products': products})
+
     def post(self, request):
-        # Product registration (create)
         access_token = request.COOKIES.get('access_token')
         if not access_token:
             return HttpResponseRedirect('/auth/login/')
@@ -60,21 +72,19 @@ class ShopView(View):
             'Authorization': f'Bearer {access_token}'
         }
 
-        # Check if the logged-in user is an admin
         admin_check_response = requests.get('http://127.0.0.3:8003/identify/token/verify', headers=headers)
         if admin_check_response.status_code == 200:
-            # Admin can create a product
             product_data = {
                 'name': request.POST.get('name'),
                 'description': request.POST.get('description'),
                 'price1': request.POST.get('price1'),
                 'price2': request.POST.get('price2'),
                 'material': request.POST.get('material'),
-                'country_id': request.POST.get('country_id'),
-                'count': request.POST.get('count')
+                'count': request.POST.get('count'),
+                'slug': request.POST.get('slug')
             }
 
-            create_response = requests.post('http://127.0.0.3:8003/products/', headers=headers, json=product_data)
+            create_response = requests.post('http://127.0.0.3:8003/products/create', headers=headers, json=product_data)
 
             if create_response.status_code == 201:
                 messages.success(request, "Product created successfully!")
@@ -122,7 +132,6 @@ class ShopView(View):
             return HttpResponse("You are not authorized to update this product.", status=403)
 
     def delete(self, request, product_id):
-        # Product deletion
         access_token = request.COOKIES.get('access_token')
         if not access_token:
             return HttpResponseRedirect('/auth/login/')
@@ -146,6 +155,50 @@ class ShopView(View):
             return HttpResponse("You are not authorized to delete this product.", status=403)
 
 
+class ProductCreateView(View):
+    def get(self, request):
+        access_token = request.COOKIES.get('access_token')
+        if not access_token:
+            return HttpResponseRedirect('/auth/login/')
+
+        return render(request, 'create_product.html')
+
+    def post(self, request):
+        access_token = request.COOKIES.get('access_token')
+        if not access_token:
+            return HttpResponseRedirect('/auth/login/')
+
+        headers = {
+            'Authorization': f'Bearer {access_token}'
+        }
+
+        # Check if the logged-in user is an admin
+        admin_check_response = requests.get('http://127.0.0.3:8003/identify/token/verify', headers=headers)
+        if admin_check_response.status_code == 200:
+            # Admin can create a product
+            product_data = {
+                'name': request.POST.get('name'),
+                'description': request.POST.get('description'),
+                'image': request.POST.get('image'),
+                'price1': request.POST.get('price1'),
+                'price2': request.POST.get('price2'),
+                'material': request.POST.get('material'),
+                'country_id': request.POST.get('country_id'),
+                'count': request.POST.get('count')
+            }
+
+            create_response = requests.post('http://127.0.0.3:8003/products/create', headers=headers, json=product_data)
+
+            if create_response.status_code == 201:
+                messages.success(request, "Product created successfully!")
+            else:
+                messages.error(request, "Failed to create product.")
+
+            return HttpResponseRedirect('/shop/')
+        else:
+            return HttpResponse("You are not authorized to create a product.", status=403)
+
+
 class AboutView(View):
     def get(self, request):
         return render(request, 'about.html')
@@ -159,3 +212,14 @@ class ThankYouView(View):
 class ContactView(View):
     def get(self, request):
         return render(request, 'contact.html')
+
+
+class Product_detail(View):
+    def get(self, request, product_id):
+        access_token = request.COOKIES.get('access_token')
+        if not access_token:
+            return HttpResponseRedirect('/auth/login/')
+        context = {
+            "products": product
+        }
+        return render(request, 'product_detail.html', context)
