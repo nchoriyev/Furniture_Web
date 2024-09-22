@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Management</title>
+    <style>
+        /* Basic styling for container and product cards */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 90%;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 50px;
+        }
+
+        .product-list, .product-detail {
+            background-color: white;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .product-item {
+            margin-bottom: 15px;
+        }
+
+        .product-item h3 {
+            margin: 0;
+            padding-bottom: 5px;
+        }
+
+        /* Button styling */
+        .btn {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-size: 16px;
+        }
+
+        .btn-create {
+            background-color: #4caf50;
+            color: white;
+        }
+
+        .btn-create:hover {
+            background-color: #45a049;
+        }
+
+        .btn-update {
+            background-color: #008cba;
+            color: white;
+        }
+
+        .btn-update:hover {
+            background-color: #007bb5;
+        }
+
+        .btn-delete {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background-color: #da190b;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .fade-in {
+            animation: fadeIn 1s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <!-- Product List Section -->
+        <div class="product-list fade-in">
+            <h2>Products</h2>
+
+            <!-- Loop through products and display them -->
+            {% for product in products %}
+            <div class="product-item">
+                <h3>{{ product.name }}</h3>
+                <p>Price: ${{ product.price1 }}</p>
+                <p>{{ product.description }}</p>
+                <a href="/shop/product/{{ product.id }}" class="btn btn-detail">View Details</a>
+            </div>
+            {% endfor %}
+
+        </div>
+
+        <!-- Product Detail Section (show details of a selected product) -->
+        {% if product %}
+        <div class="product-detail fade-in">
+            <h2>Product Details</h2>
+            <p><strong>Name:</strong> {{ product.name }}</p>
+            <p><strong>Description:</strong> {{ product.description }}</p>
+            <p><strong>Material:</strong> {{ product.material }}</p>
+            <p><strong>Price:</strong> ${{ product.price1 }}</p>
+            <p><strong>Country of Origin:</strong> {{ product.country_relation.name }}</p>
+
+            <!-- Admin Action Buttons (only shown if user is admin) -->
+            {% if request.user.status == 'admin' %}
+            <h3>Admin Actions</h3>
+            <a href="/shop/product/create/" class="btn btn-create">Create Product</a>
+            <a href="/shop/product/update/{{ product.id }}" class="btn btn-update">Update Product</a>
+            <a href="/shop/product/delete/{{ product.id }}" class="btn btn-delete">Delete Product</a>
+            {% endif %}
+
+        </div>
+        {% endif %}
+
+    </div>
+
+</body>
+</html>
